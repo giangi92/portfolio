@@ -1,0 +1,42 @@
+.sidebar-root {
+  color: azure;
+  background-color: #282c34;
+  padding: 1px 15px;
+  max-width: 185px !important;
+  min-width: 150px;
+  text-align: center;
+  height: 100%;
+}
+
+.userImage {
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.contentContainer {
+  text-align: end;
+}
+
+.fullNameContainer {
+  padding: 10px 0px 0px 0px;
+}
+.dividerContainer {
+  /* min-width: 250px; */
+  text-align: end;
+  padding-left: 30%;
+  margin: -5px auto;
+  hr {
+    border-color: white !important;
+  }
+}
+.menuList {
+  padding: 30px 0;
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  li {
+    padding-bottom: 15px;
+  }
+}

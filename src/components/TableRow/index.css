@@ -1,0 +1,10 @@
+.timePeriod {
+  min-width: 200px;
+  padding: 20px;
+}
+
+.jobDescription {
+  /* min-height: 50px; */
+  min-width: 250px;
+  white-space: pre-line;
+}

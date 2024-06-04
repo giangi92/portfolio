@@ -1,0 +1,20 @@
+.paragraph-root {
+  color: black;
+  white-space: pre-line;
+}
+.title {
+  word-wrap: unset;
+  i {
+    min-width: 30px;
+    min-height: 30px;
+    color: black;
+    padding-right: 15px;
+  }
+  hr {
+    margin-top: -2px;
+    max-width: 200px;
+  }
+}
+.paragraphContent {
+  min-width: 250px;
+}
