@@ -1,7 +1,13 @@
 {
   "educationPaths": [
     {
-      "timePeriod": "27/06/2022 – Present",
+      "timePeriod": "29/06/2024 - Present",
+      "title": "Feature Engineer @ ING IT Bank\n",
+      "description": "As a FENG my duties are collecting the activities for the Front-end team and assign them, according to the Business needs of the Customer, giving technical advices, act as an intermediary between the PO or the client and the developers. I also manage the releases to the test/acceptance/production environments of the micro-frontend web components. Write the documentation of the current developed WCs (web-components) following the client guidelines.\n",
+      "technologiesAndTools": "Lit.js, micro-frontend architecture, Microsoft Azure Devops, Confluence, Suite Microsoft Office"
+    },
+    {
+      "timePeriod": "27/06/2022 – 29/06/2024",
       "title": "Fincons Group - IT Front End Developer @ Philip Morris\n",
       "description": "As a front-end developer I’m currently involved in designing and developing a portal called AWACS for the Manufacturing domain. It embeds many dashboards and applications for remote monitoring of manufacturing machine production, providing different KPIs and alarms. The portal has been implemented following the Microfronted design pattern.\n",
       "activities": "•\tDesigning the user interface of the involved project\n•\tDeveloping highly readable and extendable React modules\n•\tContributing to the migration from monolith to micro-frontend architecture\n•\tCreating UX/UI design documents\n•\tBug fixing",
