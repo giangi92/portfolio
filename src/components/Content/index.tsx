@@ -1,15 +1,16 @@
-import React from "react";
-import { Paragraph } from "./Paragraph";
-import "./index.css";
-import pageContent from "./pageContent.json";
+import { AboutMeContainer } from "./AboutMeContainer";
+import { ContactsContainer } from "./ContactsContainer";
 import { Education } from "./Education";
 import { Experience } from "./Experience";
+import { ExpertiseContainer } from "./ExpertiseContainer";
+import { Paragraph } from "./Paragraph";
+import "./index.css";
 
 export const Content = () => {
   return (
     <div className="content-root">
       <div id="about-me">
-        <Paragraph icon="user" text={pageContent.aboutMe} title="ABOUT ME" />
+        <AboutMeContainer />
       </div>
       <div id="education">
         <Paragraph icon="book" title="EDUCATION">
@@ -17,23 +18,13 @@ export const Content = () => {
         </Paragraph>
       </div>
       <div id="experience">
-        <Paragraph
-          icon="experience"
-          text={pageContent.experience}
-          title="EXPERIENCE"
-        >
-          <Experience />
-        </Paragraph>
+        <Experience />
       </div>
       <div id="expertise">
-        <Paragraph
-          icon="studies"
-          text={pageContent.expertise}
-          title="EXPERTISE"
-        />
+        <ExpertiseContainer />
       </div>
       <div id="contacts">
-        <Paragraph icon="contacts" text={pageContent.contacts} title="CONTACTS" />
+        <ContactsContainer />
       </div>
     </div>
   );
