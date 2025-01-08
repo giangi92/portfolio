@@ -1,30 +1,27 @@
-import { AboutMeContainer } from "./AboutMeContainer";
-import { ContactsContainer } from "./ContactsContainer";
+import { AboutMe } from "./AboutMe";
+import { Contacts } from "./Contacts";
 import { Education } from "./Education";
 import { Experience } from "./Experience";
-import { ExpertiseContainer } from "./ExpertiseContainer";
-import { Paragraph } from "./Paragraph";
+import { Expertise } from "./Expertise";
 import "./index.css";
 
 export const Content = () => {
   return (
     <div className="content-root">
-      <div id="about-me">
-        <AboutMeContainer />
+      <div id="aboutMe">
+        <AboutMe />
       </div>
       <div id="education">
-        <Paragraph icon="book" title="EDUCATION">
-          <Education />
-        </Paragraph>
+        <Education />
       </div>
       <div id="experience">
         <Experience />
       </div>
       <div id="expertise">
-        <ExpertiseContainer />
+        <Expertise />
       </div>
       <div id="contacts">
-        <ContactsContainer />
+        <Contacts />
       </div>
     </div>
   );

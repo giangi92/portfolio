@@ -28,8 +28,8 @@ export const Sidebar = () => {
         </div>
         <div id="menu-list" className="menuList">
           <ul>
-            {sidebarData.menubuttons.map((menuElement) => (
-              <li className="nav-item">
+            {sidebarData.menubuttons.map((menuElement, index) => (
+              <li key={index} className="nav-item">
                 <a
                   href={`#${menuElement.pagelink}`}
                   className="nav-link link-info link-opacity-50-hover"

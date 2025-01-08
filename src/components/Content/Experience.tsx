@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { TableRow } from "../TableRow";
-import { ColumnsPlaceholder } from "./ColumnsPlaceolder";
-import { getDocument } from "../../utils/getDocument";
+import { ContentHandler } from "./ContentHandler";
 
 type ExperienceContent = {
   educationPaths: {
@@ -17,21 +16,17 @@ export const Experience = () => {
   const [experienceContent, setExperienceContent] = useState<
     ExperienceContent | undefined
   >(undefined);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    getDocument("experienceContent.json", setLoading, setError, setExperienceContent);
-  }, []);
 
   return (
-    <div className="">
-      {error ? (
-        <div className="alert alert-danger" role="alert">
-          There was an error while retriving data
-        </div>
-      ) : experienceContent && !loading ? (
-        experienceContent?.educationPaths?.map((path, index) => (
+    <ContentHandler
+      contentText={""}
+      sectionTitle="EXPERIENCE"
+      documentName="experienceContent.json"
+      icon="experience"
+      setPageContent={setExperienceContent}
+    >
+      <>
+        {experienceContent?.educationPaths?.map((path, index) => (
           <TableRow
             key={index}
             timePeriod={path.timePeriod}
@@ -40,10 +35,8 @@ export const Experience = () => {
             activities={path.activities}
             technologiesAndTools={path.technologiesAndTools}
           />
-        ))
-      ) : (
-        <ColumnsPlaceholder />
-      )}
-    </div>
+        ))}
+      </>
+    </ContentHandler>
   );
 };

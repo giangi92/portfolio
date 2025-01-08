@@ -3,7 +3,7 @@
     "surname": "Lingua",
     "jobtitle": "Frontend Developer",
     "menubuttons": [
-        {"title": "About Me", "pagelink": "about-me"},
+        {"title": "About Me", "pagelink": "aboutMe"},
         {"title": "Education", "pagelink": "education"},
         {"title": "Experience", "pagelink": "experience"},
         {"title": "Expertise", "pagelink": "expertise"},
