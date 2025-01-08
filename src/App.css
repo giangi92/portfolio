@@ -31,6 +31,9 @@ body,
 .content {
   padding: 0 15px;
   color: black;
+  @media (max-width: 575px) {
+    padding-top: 30px;
+  }
 }
 
 .App-link {

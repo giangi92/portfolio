@@ -3,6 +3,7 @@
   white-space: pre-line;
 }
 .title {
+  white-space: nowrap;
   word-wrap: unset;
   i {
     min-width: 30px;
