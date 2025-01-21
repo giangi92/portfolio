@@ -1,6 +1,6 @@
 {
-    "name": "Gianluca",
-    "surname": "Lingua",
+    "name": "Lorem",
+    "surname": "Ipsum",
     "jobtitle": "Frontend Developer",
     "menubuttons": [
         {"title": "About Me", "pagelink": "aboutMe"},

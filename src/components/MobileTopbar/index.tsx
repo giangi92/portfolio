@@ -1,3 +1,5 @@
+const name = "Lorem Ipsum";
+const role = "Frontend developer";
 export const MobileTopbar = () => {
   return (
     <div
@@ -9,8 +11,8 @@ export const MobileTopbar = () => {
         maxWidth: "100%",
       }}
     >
-      <span style={{ fontSize: "1.4rem" }}>Gianluca Lingua | </span>
-      <span style={{ fontSize: "0.8rem" }}>Frontend developer</span>
+      <span style={{ fontSize: "1.4rem" }}>{name} | </span>
+      <span style={{ fontSize: "0.8rem" }}>{role} </span>
     </div>
   );
 };

@@ -2,36 +2,36 @@
   "educationPaths": [
     {
       "timePeriod": "29/06/2024 - Present",
-      "title": "Feature Engineer @ ING IT Bank\n",
-      "description": "As a FENG my duties are collecting the activities for the Front-end team and assign them, according to the Business needs of the Customer, giving technical advices, act as an intermediary between the PO or the client and the developers. I also manage the releases to the test/acceptance/production environments of the micro-frontend web components. Write the documentation of the current developed WCs (web-components) following the client guidelines.\n",
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "description": "Nulla commodo, odio vitae posuere lacinia, ante mi auctor dolor, vestibulum egestas mi massa id augue. Nunc sagittis vestibulum nunc, blandit cursus ex suscipit nec. Donec odio sem, suscipit vel ipsum nec, euismod elementum leo. Sed vitae mauris nulla.\n",
       "technologiesAndTools": "Lit.js, micro-frontend architecture, Microsoft Azure Devops, Confluence, Suite Microsoft Office"
     },
     {
       "timePeriod": "27/06/2022 – 29/06/2024",
-      "title": "Fincons Group - IT Front End Developer @ Philip Morris\n",
-      "description": "As a front-end developer I’m currently involved in designing and developing a portal called AWACS for the Manufacturing domain. It embeds many dashboards and applications for remote monitoring of manufacturing machine production, providing different KPIs and alarms. The portal has been implemented following the Microfronted design pattern.\n",
-      "activities": "•\tDesigning the user interface of the involved project\n•\tDeveloping highly readable and extendable React modules\n•\tContributing to the migration from monolith to micro-frontend architecture\n•\tCreating UX/UI design documents\n•\tBug fixing",
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "description": "Nulla commodo, odio vitae posuere lacinia, ante mi auctor dolor, vestibulum egestas mi massa id augue. Nunc sagittis vestibulum nunc, blandit cursus ex suscipit nec. Donec odio sem, suscipit vel ipsum nec, euismod elementum leo. Sed vitae mauris nulla.\n",
+      "activities": "•\tPhasellus elit ipsum\n•\teleifend id hendrerit pellentesque\n•\tconsectetur et arcu\n•\tDonec erat lectus, volutpat ac blandit in",
       "technologiesAndTools": "ReactJS, NextJS, TypeScript, Context API, MaterialUI, PlotlyJS, GraphQL, JIRA, Bitbucket, SingleSPA (Microfronted library for ReactJS), AWS, Scrum"
     },
     {
       "timePeriod": "08/04/2019 - 23/06/2022",
-      "title": "TXT E-SOLUTIONS S.P.A - Full Stack Developer",
-      "description": "I joined an internal project regarding the Research & Development team The project aimed to implement a web application for the logistic plants",
-      "activities": "•\tDesigning the user interface for the involved project\n•\tDeveloping highly readable and extendable react modules\n•\tSelf-managing his own activities\n•\tHelping create restful APIs with Node.js and .NET core",
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "description": "Nulla commodo, odio vitae posuere lacinia, ante mi auctor dolor, vestibulum egestas mi massa id augue. Nunc sagittis vestibulum nunc, blandit cursus ex suscipit nec. Donec odio sem, suscipit vel ipsum nec, euismod elementum leo. Sed vitae mauris nulla.",
+      "activities": "•\tPhasellus elit ipsum\n•\teleifend id hendrerit pellentesque\n•\tconsectetur et arcu\n•\tDonec erat lectus, volutpat ac blandit in",
       "technologiesAndTools": "ReactJS, TypeScript, NodeJS,  NestJS, Context API, MaterialUI, PlotlyJS, GraphQL, JIRA, Bitbucket  Scrum"
     },
     {
       "timePeriod": "03/01/2018 - 05/04/2019",
-      "title": "Advancia Technology - IT Back End Developer @ UniCredit Services",
-      "description": "I participated in developing web API   to provide new functionalities to the bank management system",
-      "activities": "•\tDevelopment of Rest APIs for a small and medium-sized enterprises application using Java Spring\n•\tDevelopment and Implementation of SOAP services using Java\n•\tBug Fixing and functional tests with Junit",
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "description": "Nulla commodo, odio vitae posuere lacinia, ante mi auctor dolor, vestibulum egestas mi massa id augue. Nunc sagittis vestibulum nunc, blandit cursus ex suscipit nec. Donec odio sem, suscipit vel ipsum nec, euismod elementum leo. Sed vitae mauris nulla.",
+      "activities": "•\tPhasellus elit ipsum\n•\teleifend id hendrerit pellentesque\n•\tconsectetur et arcu\n•\tDonec erat lectus, volutpat ac blandit in",
       "technologiesAndTools": "Java  Spring, Apache CFX, Waterfall"
     },
     {
       "timePeriod": "10/10/2016 - 02/02/2017",
-      "title": "Rhubbit - Hub the Future - IT Mobile developer",
-      "description": "Updating an android application with the introduction of dynamic in app purchases, that is, items that can be purchased in customer-managed apps",
-      "activities": "•\tExtending a Java Android Application by adding web functionalities\n•\tCreating RESTful APIs using Zend framework\n•\tCreating a web platform in PHP in order to manage the main Application Content.",
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "description": "Nulla commodo, odio vitae posuere lacinia, ante mi auctor dolor, vestibulum egestas mi massa id augue. Nunc sagittis vestibulum nunc, blandit cursus ex suscipit nec. Donec odio sem, suscipit vel ipsum nec, euismod elementum leo. Sed vitae mauris nulla.",
+      "activities": "•\tPhasellus elit ipsum\n•\teleifend id hendrerit pellentesque\n•\tconsectetur et arcu\n•\tDonec erat lectus, volutpat ac blandit in",
       "technologiesAndTools": "PHP Zend, Java Android, GitLab, Waterfall"
     }
   ]
