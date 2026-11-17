@@ -1,6 +1,7 @@
-const name = "Lorem Ipsum";
-const role = "Frontend developer";
-export const MobileTopbar = () => {
+import type { Profile } from "../../shared/content";
+
+export const MobileTopbar = ({ profile }: { profile?: Profile }) => {
+  if (!profile) return null;
   return (
     <div
       style={{
@@ -11,8 +12,10 @@ export const MobileTopbar = () => {
         maxWidth: "100%",
       }}
     >
-      <span style={{ fontSize: "1.4rem" }}>{name} | </span>
-      <span style={{ fontSize: "0.8rem" }}>{role} </span>
+      <span style={{ fontSize: "1.4rem" }}>
+        {profile.name} {profile.surname} |{" "}
+      </span>
+      <span style={{ fontSize: "0.8rem" }}>{profile.jobtitle} </span>
     </div>
   );
 };

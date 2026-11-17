@@ -1,12 +1,12 @@
-import React from "react";
+import type { ReactNode } from "react";
 import "./Paragraph.css";
-import { getIconByName, iconName } from "../../utils/getIconByName";
+import { getIconByName, type iconName } from "../../utils/getIconByName";
 
 interface IParagraph {
   title: string;
   icon: iconName;
   text?: string;
-  children?: JSX.Element
+  children?: ReactNode;
 }
 
 export const Paragraph = ({ title, text, icon, children }: IParagraph) => {
@@ -17,7 +17,7 @@ export const Paragraph = ({ title, text, icon, children }: IParagraph) => {
           <i className={getIconByName(icon)} />
           {title}
         </p>
-        <hr className="border border-black border-2 opacity-100" />
+        <hr className="border border-2 opacity-100 title-rule" />
       </div>
       <div id="content" className="paragraphContent">
         <p>{text}</p>

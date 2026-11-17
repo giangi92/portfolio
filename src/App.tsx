@@ -1,39 +1,35 @@
+import { useEffect } from "react";
 import ScrollToTop from "react-scroll-to-top";
 import "./App.css";
 import { Content } from "./components/Content";
 import { Sidebar } from "./components/Sidebar";
 import { MobileTopbar } from "./components/MobileTopbar";
+import { useDocument } from "./shared/useDocument";
+import type { Profile } from "./shared/content";
+import { applyTheme, normalizeTheme, type Theme } from "./shared/theme";
 
 const sideBarMinWidth = 150;
 const sideBarMaxWidth = 180;
 
 function App() {
+  const { data: profile } = useDocument<Profile>("profile.json");
+  const { data: theme } = useDocument<Partial<Theme>>("theme.json");
+
+  useEffect(() => {
+    applyTheme(normalizeTheme(theme));
+  }, [theme]);
+
   return (
     <div className="App">
       <div
-        className="d-sm-none"
-        style={{
-          minHeight: 60,
-          width: "100%",
-          backgroundColor: "#292c34",
-          position: "fixed",
-          top: 0,
-          left: 0,
-          fontSize: "2rem",
-          zIndex: 666,
-          color: "whitesmoke",
-        }}
+        className="d-sm-none mobile-topbar"
         data-bs-toggle="offcanvas"
         data-bs-target="#sidebar"
       >
-        <button
-          type="button"
-          className="btn d-sm-none"
-          style={{ position: "fixed", fontSize: "2rem", color: "whitesmoke" }}
-        >
+        <button type="button" className="btn d-sm-none mobile-topbar-button">
           <i className="bi bi-list"></i>
         </button>{" "}
-        <MobileTopbar />
+        <MobileTopbar profile={profile} />
       </div>
       <div className="container-fluid">
         <div className="row">
@@ -59,7 +55,7 @@ function App() {
                   backgroundColor: "unset",
                 }}
               >
-                <Sidebar />
+                <Sidebar profile={profile} />
               </div>
             </div>
           </div>

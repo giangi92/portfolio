@@ -1,21 +1,16 @@
+import { fetchDocument, type DocumentName } from "../shared/content";
+
 export const getDocument = (
-  documentName: string,
+  documentName: DocumentName,
   setLoading: (v: boolean) => void,
   setError: (v: boolean) => void,
   setContent: (v: any) => void
 ) => {
   setLoading(true);
-  const reqHeaders = new Headers();
-  reqHeaders.set("Content-Type", "application/json");
-  reqHeaders.set("Accept", "application/json");
-
-  fetch(`files/${documentName}`, {
-    headers: reqHeaders,
-  })
-    .then((res) => res.json())
-    .then((res) => setContent(res))
+  fetchDocument(documentName)
+    .then(setContent)
     .catch((error) => {
-      console.log(error);
+      console.error(error);
       setError(true);
     })
     .finally(() => setLoading(false));

@@ -1,5 +1,5 @@
 .content-root {
-    color: black;
+    color: var(--pf-text);
     position: relative;
     left: 0;
     padding: 35px 20px;

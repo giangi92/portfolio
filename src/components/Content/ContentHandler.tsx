@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { getDocument } from "../../utils/getDocument";
+import type { DocumentName } from "../../shared/content";
 import { Paragraph } from "./Paragraph";
 import { ParagraphPlaceholder } from "./ParagraphPlaceholder";
 import { ColumnsPlaceholder } from "./ColumnsPlaceolder";
-import { iconName } from "../../utils/getIconByName";
+import type { iconName } from "../../utils/getIconByName";
 
 export type PageContent = {
   aboutMe: string;
@@ -22,11 +23,11 @@ export const ContentHandler = ({
   children,
 }: {
   sectionTitle: string;
-  documentName: string;
+  documentName: DocumentName;
   contentText: string;
   icon: iconName;
   setPageContent: (v: any) => void;
-  children?: JSX.Element;
+  children?: ReactNode;
 }) => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);

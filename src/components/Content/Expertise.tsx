@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PageContent, ContentHandler } from "./ContentHandler";
+import { type PageContent, ContentHandler } from "./ContentHandler";
 
 export const Expertise = () => {
   const [pageContent, setPageContent] = useState<PageContent | undefined>(

@@ -30,12 +30,26 @@ body,
 
 .content {
   padding: 0 15px;
-  color: black;
+  color: var(--pf-text);
   @media (max-width: 575px) {
     padding-top: 30px;
   }
 }
 
-.App-link {
-  color: #61dafb;
+.mobile-topbar {
+  min-height: 60px;
+  width: 100%;
+  background-color: var(--pf-sidebar-bg);
+  color: var(--pf-sidebar-text);
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-size: 2rem;
+  z-index: 666;
+}
+
+.mobile-topbar-button {
+  position: fixed;
+  font-size: 2rem;
+  color: var(--pf-sidebar-text);
 }
