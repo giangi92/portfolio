@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ContentHandler, PageContent } from "./ContentHandler";
+import { ContentHandler, type PageContent } from "./ContentHandler";
 
 export const Contacts = () => {
   const [pageContent, setPageContent] = useState<PageContent | undefined>(
@@ -9,7 +9,7 @@ export const Contacts = () => {
   return (
     <ContentHandler
       contentText={pageContent?.contacts ?? ""}
-      sectionTitle="CONTACTS"
+      section="contacts"
       documentName="contacts.json"
       icon="contacts"
       setPageContent={setPageContent}

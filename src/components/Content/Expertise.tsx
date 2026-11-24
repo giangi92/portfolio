@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PageContent, ContentHandler } from "./ContentHandler";
+import { type PageContent, ContentHandler } from "./ContentHandler";
 
 export const Expertise = () => {
   const [pageContent, setPageContent] = useState<PageContent | undefined>(
@@ -9,7 +9,7 @@ export const Expertise = () => {
   return (
     <ContentHandler
       contentText={pageContent?.expertise ?? ""}
-      sectionTitle="EXPERTISE"
+      section="expertise"
       documentName="expertise.json"
       icon="studies"
       setPageContent={setPageContent}

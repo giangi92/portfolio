@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { getDocument } from "../../utils/getDocument";
+import type { DocumentName } from "../../shared/content";
+import { useSiteI18n } from "../../site/i18n";
 import { Paragraph } from "./Paragraph";
 import { ParagraphPlaceholder } from "./ParagraphPlaceholder";
 import { ColumnsPlaceholder } from "./ColumnsPlaceolder";
-import { iconName } from "../../utils/getIconByName";
+import type { iconName } from "../../utils/getIconByName";
 
 export type PageContent = {
   aboutMe: string;
@@ -13,31 +15,35 @@ export type PageContent = {
   contacts: string;
 };
 
+/** Site sections; also the keys of their titles in the `site` translations. */
+export type SiteSection = keyof PageContent;
+
 export const ContentHandler = ({
-  sectionTitle,
+  section,
   documentName,
   contentText,
   icon,
   setPageContent,
   children,
 }: {
-  sectionTitle: string;
-  documentName: string;
+  section: SiteSection;
+  documentName: DocumentName;
   contentText: string;
   icon: iconName;
   setPageContent: (v: any) => void;
-  children?: JSX.Element;
+  children?: ReactNode;
 }) => {
+  const { lang, t } = useSiteI18n();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (documentName && setPageContent)
-      getDocument(documentName, setLoading, setError, setPageContent);
-  }, [documentName, setPageContent]);
+      getDocument(documentName, lang, setLoading, setError, setPageContent);
+  }, [documentName, lang, setPageContent]);
 
   return (
-    <Paragraph icon={icon} text={contentText} title={sectionTitle}>
+    <Paragraph icon={icon} text={contentText} title={t.site[section].toLocaleUpperCase(lang)}>
       {loading ? (
         children ? (
           <ColumnsPlaceholder />
@@ -46,7 +52,7 @@ export const ContentHandler = ({
         )
       ) : error ? (
         <div className="alert alert-danger" role="alert">
-          There was an error while retriving data
+          {t.site.loadError}
         </div>
       ) : children ? (
         <>{children}</>

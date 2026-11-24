@@ -1,47 +1,82 @@
 Live preview http://giangisoft.altervista.org/portfolio/
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Portfolio
 
-## Available Scripts
+React 19 + TypeScript + Vite, with a password-protected admin dashboard (PHP API) to edit
+texts, the profile picture and the site theme.
 
-In the project directory, you can run:
+- Site: `/portfolio/`
+- Admin dashboard: `/portfolio/admin/`
 
-### `npm start`
+Content lives in `public/files/*.json` and is loaded at runtime, so edits made from the
+dashboard show up immediately without a rebuild.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Screenshots
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Site
 
-### `npm test`
+| Light | Dark |
+| --- | --- |
+| ![Site, light mode](docs/screenshots/site-light.png) | ![Site, dark mode](docs/screenshots/site-dark.png) |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+<p align="center">
+  <img src="docs/screenshots/site-mobile.png" alt="Site on mobile" width="300">
+</p>
 
-### `npm run build`
+### Admin dashboard
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Login | Profile |
+| --- | --- |
+| ![Admin login](docs/screenshots/admin-login.png) | ![Profile editor](docs/screenshots/admin-profile.png) |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+| Experience | Theme & style |
+| --- | --- |
+| ![Experience editor](docs/screenshots/admin-experience.png) | ![Theme editor with live preview](docs/screenshots/admin-theme.png) |
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Development
 
-### `npm run eject`
+Requirements: Node 20+, Docker (for the local PHP API).
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```bash
+npm install
+npm run api   # PHP 8.4 API on http://localhost:8787 (Docker)
+npm run dev   # site on http://localhost:3000/portfolio/, admin on /portfolio/admin/
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Vite proxies `/portfolio/api` to the PHP container. Locally the dashboard writes straight into
+`public/files`, while the password hash is kept in a Docker volume (reset it with
+`docker compose down -v`).
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Other scripts: `npm run build` (typecheck + build into `build/`), `npm test`, `npm run typecheck`.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Deploy (Altervista or any Apache + PHP >= 8.1 host)
 
-## Learn More
+1. `npm run build`
+2. Upload the content of `build/` to the `portfolio` folder of the host.
+3. Open `/portfolio/admin/` **right away** and choose the admin password: the first person to
+   open the dashboard sets it, and it can be set only once.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+> **Careful when redeploying:** `build/files/` contains the content from the repository.
+> Uploading it overwrites what you edited online. Skip the `files` folder (or download it
+> first) and never upload anything over `api/private/`.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The image upload limit is 5 MB; check that the host's `upload_max_filesize` and `post_max_size` allow it.
+
+## Admin security
+
+- The password is set once, from the first-access screen. The hash file is created atomically,
+  so a second "first setup" is refused. Afterwards it can only be changed from
+  *Sicurezza* (Security) by entering the current password.
+- Only a salted hash is stored (**Argon2id**, or bcrypt cost 12 if PHP lacks Argon2), in
+  `api/private/auth.php`. The folder is denied via `.htaccess`, and the file is PHP that
+  prints nothing even if requested directly.
+- Sessions: HttpOnly + SameSite=Strict cookies (Secure on HTTPS), id regenerated at login,
+  30 min idle / 8 h absolute timeout. Every write requires a CSRF token.
+- 5 wrong passwords from the same IP block logins for 15 minutes.
+- All saved content is validated server-side (whitelisted documents, field types and lengths,
+  hex-only colors, whitelisted fonts). Uploads must be real JPG/PNG/WEBP images and are always
+  saved as `profile.<ext>`. Scripts can't run from `files/`.
+- Use HTTPS for the admin dashboard, or the password travels in clear text.
+
+**Forgot the password?** Delete `portfolio/api/private/auth.php` via FTP, then open the
+dashboard and set a new one.

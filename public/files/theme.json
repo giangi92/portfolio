@@ -1,0 +1,15 @@
+{
+  "mode": "light",
+  "colors": {
+    "sidebarBackground": "#282c34",
+    "sidebarText": "#f0ffff",
+    "accent": "#3dd5f3",
+    "background": "#ffffff",
+    "text": "#000000",
+    "title": "#000000"
+  },
+  "fontFamily": "system",
+  "headingFontFamily": "system",
+  "fontSize": 16,
+  "imageShape": "rounded"
+}

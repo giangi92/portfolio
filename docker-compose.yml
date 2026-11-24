@@ -1,0 +1,20 @@
+# Local PHP API for development: `npm run api`, then `npm run dev`.
+# Content edits are written straight into public/files; the password hash is kept
+# in a Docker volume, outside public/, so it never ends up in a build.
+services:
+  api:
+    image: php:8.4-cli
+    working_dir: /app
+    command: >
+      php -d upload_max_filesize=6M -d post_max_size=8M
+      -S 0.0.0.0:8080 -t /app/public
+    ports:
+      - "8787:8080"
+    environment:
+      PORTFOLIO_PRIVATE_DIR: /data
+    volumes:
+      - ./public:/app/public
+      - admin-data:/data
+
+volumes:
+  admin-data:

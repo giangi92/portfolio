@@ -12,6 +12,9 @@
 /build
 /public/files-bak
 
+# admin password hash & login attempts: never commit or publish
+/public/api/private/
+
 # misc
 .DS_Store
 .env.local

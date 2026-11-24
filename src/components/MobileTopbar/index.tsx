@@ -1,18 +1,24 @@
-const name = "Lorem Ipsum";
-const role = "Frontend developer";
-export const MobileTopbar = () => {
+import type { Profile } from "../../shared/content";
+
+export const MobileTopbar = ({ profile }: { profile?: Profile }) => {
+  if (!profile) return null;
   return (
     <div
       style={{
         position: "fixed",
         top: 4,
         left: 55,
+        // Leave room for the language / dark mode controls at the top right.
+        right: 150,
         whiteSpace: "nowrap",
-        maxWidth: "100%",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       }}
     >
-      <span style={{ fontSize: "1.4rem" }}>{name} | </span>
-      <span style={{ fontSize: "0.8rem" }}>{role} </span>
+      <span style={{ fontSize: "1.4rem" }}>
+        {profile.name} {profile.surname} |{" "}
+      </span>
+      <span style={{ fontSize: "0.8rem" }}>{profile.jobtitle} </span>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 .sidebar-root {
-  color: azure;
-  background-color: #282c34;
+  color: var(--pf-sidebar-text);
+  background-color: var(--pf-sidebar-bg);
   padding: 1px 15px;
   max-width: 185px !important;
   min-width: 150px;
@@ -10,8 +10,12 @@
 }
 
 .userImage {
-  max-width: 200px;
+  width: 100%;
+  max-width: min(100%, 200px);
   max-height: 200px;
+  border-radius: var(--pf-image-radius);
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
 }
 
 .contentContainer {
@@ -27,7 +31,7 @@
   padding-left: 30%;
   margin: -5px auto;
   hr {
-    border-color: white !important;
+    border-color: var(--pf-sidebar-text) !important;
   }
 }
 .menuList {
@@ -39,5 +43,14 @@
   }
   li {
     padding-bottom: 15px;
+  }
+  a {
+    color: var(--pf-accent);
+    opacity: 0.85;
+  }
+  a:hover,
+  a:focus {
+    color: var(--pf-accent);
+    opacity: 1;
   }
 }

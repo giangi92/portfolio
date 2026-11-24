@@ -1,5 +1,5 @@
-import React from "react";
 import "./index.css";
+import { useSiteI18n } from "../../site/i18n";
 
 interface IEducationTableRow {
   timePeriod: string;
@@ -16,6 +16,7 @@ export const TableRow = ({
   technologiesAndTools,
   title,
 }: IEducationTableRow) => {
+  const { t } = useSiteI18n();
   return (
     <div className="container-fluid a-center">
       <div className="row">
@@ -25,14 +26,14 @@ export const TableRow = ({
           <p>{`${description}`}</p>
           {activities && (
             <p>
-              <b>Activities: </b>
+              <b>{t.site.activities}: </b>
               <br />
               {`${activities}`}
             </p>
           )}
           {technologiesAndTools && (
             <p>
-              <b>Technologies And Tools: </b>
+              <b>{t.site.technologies}: </b>
               <br />
               {`${technologiesAndTools}`}
             </p>
