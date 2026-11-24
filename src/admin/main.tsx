@@ -4,9 +4,12 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./admin.css";
 import { AdminApp } from "./AdminApp";
+import { I18nProvider } from "./i18n";
 
 createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
-    <AdminApp />
+    <I18nProvider>
+      <AdminApp />
+    </I18nProvider>
   </StrictMode>
 );

@@ -2,8 +2,11 @@ import "./index.css";
 import fallbackImage from "../../img/unknown_person.jpg";
 import menu from "./menu.json";
 import { profileImageUrl, type Profile } from "../../shared/content";
+import { useSiteI18n } from "../../site/i18n";
+import type { SiteSection } from "../Content/ContentHandler";
 
 export const Sidebar = ({ profile }: { profile?: Profile }) => {
+  const { t } = useSiteI18n();
   return (
     <div className="sidebar-root">
       <div id="image">
@@ -13,7 +16,7 @@ export const Sidebar = ({ profile }: { profile?: Profile }) => {
             if (e.currentTarget.src !== fallbackImage) e.currentTarget.src = fallbackImage;
           }}
           className="img-fluid userImage"
-          alt={profile ? `${profile.name} ${profile.surname}` : "User"}
+          alt={profile ? `${profile.name} ${profile.surname}` : t.site.profilePhoto}
         />
       </div>
       <div id="content-container" className="contentContainer">
@@ -34,7 +37,7 @@ export const Sidebar = ({ profile }: { profile?: Profile }) => {
             {menu.map((menuElement, index) => (
               <li key={index} className="nav-item">
                 <a href={`#${menuElement.pagelink}`} className="nav-link">
-                  {menuElement.title}
+                  {t.site[menuElement.pagelink as SiteSection]}
                 </a>
               </li>
             ))}

@@ -1,6 +1,9 @@
+import { useState } from "react";
 import type { DocumentName } from "../../shared/content";
 import { SaveBar, TextArea } from "../fields";
+import { DEFAULT_LANGUAGE, useI18n } from "../i18n";
 import { useEditableDocument } from "../useEditableDocument";
+import { ContentLanguageBar } from "./ContentLanguageBar";
 import { EditorShell } from "./EditorShell";
 
 /** Editor for documents made of a single text field, e.g. { "aboutMe": "..." }. */
@@ -15,13 +18,18 @@ export const TextDocumentEditor = ({
   title: string;
   rows?: number;
 }) => {
-  const doc = useEditableDocument<Record<string, string>>(document, (raw) => ({
-    [field]: typeof raw?.[field] === "string" ? raw[field] : "",
-  }));
+  const { t } = useI18n();
+  const [lang, setLang] = useState(DEFAULT_LANGUAGE);
+  const doc = useEditableDocument<Record<string, string>>(
+    document,
+    (raw) => ({ [field]: typeof raw?.[field] === "string" ? raw[field] : "" }),
+    lang
+  );
 
   return (
     <EditorShell
       title={title}
+      toolbar={<ContentLanguageBar lang={lang} onChange={setLang} doc={doc} />}
       loadError={doc.loadError}
       loading={!doc.draft}
       footer={
@@ -30,11 +38,11 @@ export const TextDocumentEditor = ({
     >
       {doc.draft && (
         <TextArea
-          label="Testo"
+          label={t.text.label}
           rows={rows}
           value={doc.draft[field]}
           onChange={(v) => doc.update({ [field]: v })}
-          hint="Gli a capo vengono mantenuti nel sito."
+          hint={t.text.hint}
         />
       )}
     </EditorShell>

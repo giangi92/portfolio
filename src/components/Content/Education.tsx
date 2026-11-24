@@ -14,7 +14,7 @@ export const Education = () => {
   return (
     <ContentHandler
       contentText={""}
-      sectionTitle="EDUCATION"
+      section="education"
       documentName="educationContent.json"
       setPageContent={setEducationContent}
       icon="book"

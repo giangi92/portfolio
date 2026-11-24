@@ -1,0 +1,37 @@
+.site-controls {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  /* Above the mobile top bar (z-index 666), below Bootstrap's offcanvas (1045). */
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.site-controls .site-control {
+  background-color: var(--pf-bg);
+  color: var(--pf-text);
+  border: 1px solid rgba(128, 128, 128, 0.45);
+  font-size: 0.875rem;
+  height: 32px;
+}
+
+.site-controls .form-select.site-control {
+  width: auto;
+  /* Room for Bootstrap's arrow, which already adapts to data-bs-theme. */
+  padding-right: 2rem;
+}
+
+.site-controls .site-mode-toggle {
+  width: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.site-controls .site-control:hover,
+.site-controls .site-control:focus-visible {
+  border-color: var(--pf-accent);
+}

@@ -1,9 +1,14 @@
 import type { DocumentName } from "../../shared/content";
 import { SaveBar, TextArea, TextInput } from "../fields";
+import { useState } from "react";
+import { DEFAULT_LANGUAGE, useI18n } from "../i18n";
 import { useEditableDocument } from "../useEditableDocument";
+import { ContentLanguageBar } from "./ContentLanguageBar";
 import { EditorShell } from "./EditorShell";
 
 type Field = { key: string; label: string; multiline?: boolean; required?: boolean };
+/** Per-list wording, so each language can use the right noun and grammatical gender. */
+type ItemLabels = { add: string; newItem: string; confirmDelete: string };
 type Item = Record<string, string>;
 type ListDoc = { educationPaths: Item[] };
 
@@ -11,14 +16,15 @@ type ListDoc = { educationPaths: Item[] };
 export const ListEditor = ({
   document,
   title,
-  itemLabel,
+  labels,
   fields,
 }: {
   document: DocumentName;
   title: string;
-  itemLabel: string;
+  labels: ItemLabels;
   fields: Field[];
 }) => {
+  const { t } = useI18n();
   const normalize = (raw: any): ListDoc => ({
     educationPaths: (Array.isArray(raw?.educationPaths) ? raw.educationPaths : []).map(
       (item: any) =>
@@ -27,7 +33,8 @@ export const ListEditor = ({
         )
     ),
   });
-  const doc = useEditableDocument<ListDoc>(document, normalize);
+  const [lang, setLang] = useState(DEFAULT_LANGUAGE);
+  const doc = useEditableDocument<ListDoc>(document, normalize, lang);
   const items = doc.draft?.educationPaths ?? [];
 
   const setItems = (next: Item[]) => doc.update({ educationPaths: next });
@@ -40,7 +47,7 @@ export const ListEditor = ({
     setItems(next);
   };
   const remove = (index: number) => {
-    if (window.confirm(`Eliminare questo ${itemLabel}?`))
+    if (window.confirm(labels.confirmDelete))
       setItems(items.filter((_, i) => i !== index));
   };
   const add = () =>
@@ -51,13 +58,14 @@ export const ListEditor = ({
   return (
     <EditorShell
       title={title}
-      description="L'ordine qui è l'ordine in cui appaiono nel sito."
+      description={t.list.intro}
+      toolbar={<ContentLanguageBar lang={lang} onChange={setLang} doc={doc} />}
       loadError={doc.loadError}
       loading={!doc.draft}
       footer={
         <>
           {missing && (
-            <div className="alert alert-warning py-2 mt-3">Compila i campi obbligatori.</div>
+            <div className="alert alert-warning py-2 mt-3">{t.list.requiredMissing}</div>
           )}
           <SaveBar
             state={doc.state}
@@ -70,20 +78,20 @@ export const ListEditor = ({
     >
       <button className="btn btn-outline-primary mb-3" onClick={add}>
         <i className="bi bi-plus-lg me-1" />
-        Aggiungi {itemLabel}
+        {labels.add}
       </button>
-      {items.length === 0 && <p className="text-body-secondary">Nessun elemento.</p>}
+      {items.length === 0 && <p className="text-body-secondary">{t.list.empty}</p>}
       {items.map((item, index) => (
         <div className="card mb-3" key={index}>
           <div className="card-header d-flex align-items-center gap-2">
             <span className="fw-semibold me-auto text-truncate">
-              {item.timePeriod || `Nuovo ${itemLabel}`}
+              {item.timePeriod || labels.newItem}
             </span>
             <button
               className="btn btn-sm btn-outline-secondary"
               disabled={index === 0}
               onClick={() => move(index, -1)}
-              aria-label="Sposta su"
+              aria-label={t.list.moveUp}
             >
               <i className="bi bi-arrow-up" />
             </button>
@@ -91,14 +99,14 @@ export const ListEditor = ({
               className="btn btn-sm btn-outline-secondary"
               disabled={index === items.length - 1}
               onClick={() => move(index, 1)}
-              aria-label="Sposta giù"
+              aria-label={t.list.moveDown}
             >
               <i className="bi bi-arrow-down" />
             </button>
             <button
               className="btn btn-sm btn-outline-danger"
               onClick={() => remove(index)}
-              aria-label="Elimina"
+              aria-label={t.list.remove}
             >
               <i className="bi bi-trash" />
             </button>

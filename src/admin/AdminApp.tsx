@@ -2,17 +2,16 @@ import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from
 import { api, setUnauthorizedHandler, type Status } from "./api";
 import { Dashboard } from "./Dashboard";
 import { PasswordInput } from "./fields";
+import { format, LanguageSelect, RichText, useI18n } from "./i18n";
 
 export const AdminApp = () => {
+  const { t, errorText } = useI18n();
   const [status, setStatus] = useState<Status | undefined>();
-  const [loadError, setLoadError] = useState("");
+  const [loadError, setLoadError] = useState<unknown>();
 
   const refresh = useCallback(() => {
-    setLoadError("");
-    api
-      .status()
-      .then(setStatus)
-      .catch((e: Error) => setLoadError(e.message));
+    setLoadError(undefined);
+    api.status().then(setStatus).catch(setLoadError);
   }, []);
 
   useEffect(() => {
@@ -24,9 +23,9 @@ export const AdminApp = () => {
     return (
       <Centered>
         <div className="alert alert-danger">
-          {loadError}
+          {errorText(loadError)}
           <button className="btn btn-sm btn-outline-danger ms-3" onClick={refresh}>
-            Riprova
+            {t.common.retry}
           </button>
         </div>
       </Centered>
@@ -49,10 +48,14 @@ export const AdminApp = () => {
 };
 
 const Centered = ({ children }: { children: ReactNode }) => (
-  <div className="admin-center">{children}</div>
+  <div className="admin-center">
+    {children}
+    <LanguageSelect className="admin-auth-language mt-3" />
+  </div>
 );
 
 const SetupForm = ({ minLength, onDone }: { minLength: number; onDone: () => void }) => {
+  const { t, errorText } = useI18n();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -60,15 +63,15 @@ const SetupForm = ({ minLength, onDone }: { minLength: number; onDone: () => voi
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (password.length < minLength) return setError(`Almeno ${minLength} caratteri`);
-    if (password !== confirm) return setError("Le password non coincidono");
+    if (password.length < minLength) return setError(format(t.auth.minLength, { min: minLength }));
+    if (password !== confirm) return setError(t.common.passwordsDontMatch);
     setBusy(true);
     setError("");
     try {
       await api.setup(password);
       onDone();
     } catch (err) {
-      setError((err as Error).message);
+      setError(errorText(err));
       setBusy(false);
     }
   };
@@ -79,29 +82,28 @@ const SetupForm = ({ minLength, onDone }: { minLength: number; onDone: () => voi
         <div className="card-body">
           <h1 className="h4 mb-1">
             <i className="bi bi-shield-lock me-2" />
-            Primo accesso
+            {t.auth.setupTitle}
           </h1>
           <p className="text-body-secondary small">
-            Scegli la password del pannello. Può essere impostata <b>una sola volta</b>: viene
-            salvata solo come hash Argon2id/bcrypt, mai in chiaro.
+            <RichText text={t.auth.setupIntro} />
           </p>
           <PasswordInput
-            label="Nuova password"
+            label={t.auth.newPassword}
             value={password}
             onChange={setPassword}
             autoComplete="new-password"
             autoFocus
           />
           <PasswordInput
-            label="Conferma password"
+            label={t.auth.confirmPassword}
             value={confirm}
             onChange={setConfirm}
             autoComplete="new-password"
           />
-          <div className="form-text mb-3">Minimo {minLength} caratteri. Usa una passphrase.</div>
+          <div className="form-text mb-3">{format(t.auth.minLengthHint, { min: minLength })}</div>
           {error && <div className="alert alert-danger py-2">{error}</div>}
           <button className="btn btn-primary w-100" disabled={busy}>
-            Imposta password
+            {t.auth.setPassword}
           </button>
         </div>
       </form>
@@ -110,6 +112,7 @@ const SetupForm = ({ minLength, onDone }: { minLength: number; onDone: () => voi
 };
 
 const LoginForm = ({ onDone }: { onDone: () => void }) => {
+  const { t, errorText } = useI18n();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -122,7 +125,7 @@ const LoginForm = ({ onDone }: { onDone: () => void }) => {
       await api.login(password);
       onDone();
     } catch (err) {
-      setError((err as Error).message);
+      setError(errorText(err));
       setPassword("");
       setBusy(false);
     }
@@ -134,10 +137,10 @@ const LoginForm = ({ onDone }: { onDone: () => void }) => {
         <div className="card-body">
           <h1 className="h4 mb-3">
             <i className="bi bi-person-lock me-2" />
-            Accesso amministratore
+            {t.auth.loginTitle}
           </h1>
           <PasswordInput
-            label="Password"
+            label={t.auth.password}
             value={password}
             onChange={setPassword}
             autoComplete="current-password"
@@ -145,10 +148,10 @@ const LoginForm = ({ onDone }: { onDone: () => void }) => {
           />
           {error && <div className="alert alert-danger py-2">{error}</div>}
           <button className="btn btn-primary w-100" disabled={busy || !password}>
-            Entra
+            {t.auth.login}
           </button>
           <a className="d-block text-center small mt-3" href={import.meta.env.BASE_URL}>
-            Torna al portfolio
+            {t.auth.backToPortfolio}
           </a>
         </div>
       </form>

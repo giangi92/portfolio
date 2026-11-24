@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { fetchDocument, type DocumentName } from "./content";
+import { fetchDocument, fetchLocalizedDocument, type DocumentName } from "./content";
+import { DEFAULT_LANGUAGE } from "./i18n/languages";
 
-export const useDocument = <T,>(name: DocumentName) => {
+/** Loads a document; with `lang`, its version in that language (English if not translated). */
+export const useDocument = <T,>(name: DocumentName, lang?: string) => {
   const [data, setData] = useState<T | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -10,7 +12,7 @@ export const useDocument = <T,>(name: DocumentName) => {
     let active = true;
     setLoading(true);
     setError(false);
-    fetchDocument<T>(name)
+    (lang ? fetchLocalizedDocument<T>(name, lang, DEFAULT_LANGUAGE) : fetchDocument<T>(name))
       .then((doc) => active && setData(doc))
       .catch((e) => {
         console.error(e);
@@ -20,7 +22,7 @@ export const useDocument = <T,>(name: DocumentName) => {
     return () => {
       active = false;
     };
-  }, [name]);
+  }, [name, lang]);
 
   return { data, setData, loading, error };
 };

@@ -9,7 +9,7 @@ export const Expertise = () => {
   return (
     <ContentHandler
       contentText={pageContent?.expertise ?? ""}
-      sectionTitle="EXPERTISE"
+      section="expertise"
       documentName="expertise.json"
       icon="studies"
       setPageContent={setPageContent}

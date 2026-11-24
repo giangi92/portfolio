@@ -1,15 +1,18 @@
 import { useId, useState } from "react";
+import { useI18n } from "./i18n";
 
 export const TextInput = ({
   label,
   value,
   onChange,
   placeholder,
+  disabled,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
+  disabled?: boolean;
 }) => {
   const id = useId();
   return (
@@ -22,6 +25,7 @@ export const TextInput = ({
         className="form-control"
         value={value}
         placeholder={placeholder}
+        disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
       />
     </div>
@@ -73,6 +77,7 @@ export const PasswordInput = ({
   autoFocus?: boolean;
 }) => {
   const id = useId();
+  const { t } = useI18n();
   const [visible, setVisible] = useState(false);
   return (
     <div className="mb-3">
@@ -93,7 +98,7 @@ export const PasswordInput = ({
           type="button"
           className="btn btn-outline-secondary"
           onClick={() => setVisible((v) => !v)}
-          aria-label={visible ? "Nascondi password" : "Mostra password"}
+          aria-label={visible ? t.common.hidePassword : t.common.showPassword}
         >
           <i className={visible ? "bi bi-eye-slash" : "bi bi-eye"} />
         </button>
@@ -114,29 +119,32 @@ export const SaveBar = ({
   dirty: boolean;
   onSave: () => void;
   onReset?: () => void;
-}) => (
-  <div className="admin-savebar">
-    {state.kind === "error" && <span className="text-danger me-auto">{state.message}</span>}
-    {state.kind === "saved" && !dirty && (
-      <span className="text-success me-auto">
-        <i className="bi bi-check-circle me-1" />
-        Salvato
-      </span>
-    )}
-    {dirty && state.kind !== "error" && (
-      <span className="text-body-secondary me-auto">Modifiche non salvate</span>
-    )}
-    {onReset && (
-      <button className="btn btn-outline-secondary" disabled={!dirty} onClick={onReset}>
-        Annulla
+}) => {
+  const { t } = useI18n();
+  return (
+    <div className="admin-savebar">
+      {state.kind === "error" && <span className="text-danger me-auto">{state.message}</span>}
+      {state.kind === "saved" && !dirty && (
+        <span className="text-success me-auto">
+          <i className="bi bi-check-circle me-1" />
+          {t.common.saved}
+        </span>
+      )}
+      {dirty && state.kind !== "error" && (
+        <span className="text-body-secondary me-auto">{t.common.unsavedChanges}</span>
+      )}
+      {onReset && (
+        <button className="btn btn-outline-secondary" disabled={!dirty} onClick={onReset}>
+          {t.common.cancel}
+        </button>
+      )}
+      <button
+        className="btn btn-primary"
+        disabled={!dirty || state.kind === "saving"}
+        onClick={onSave}
+      >
+        {state.kind === "saving" ? t.common.saving : t.common.save}
       </button>
-    )}
-    <button
-      className="btn btn-primary"
-      disabled={!dirty || state.kind === "saving"}
-      onClick={onSave}
-    >
-      {state.kind === "saving" ? "Salvataggio…" : "Salva"}
-    </button>
-  </div>
-);
+    </div>
+  );
+};

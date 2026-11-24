@@ -28,6 +28,15 @@ const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_IMAGE_SIDE = 6000;
 const MAX_TEXT_LENGTH = 20000;
 const MAX_LIST_ITEMS = 100;
+const MAX_LANGUAGES = 30;
+const MAX_TRANSLATION_STRINGS = 1000;
+const MAX_TRANSLATION_LENGTH = 2000;
+const MAX_TRANSLATION_DEPTH = 4;
+// English is the main language: its content is in files/*.json, other languages in files/i18n/<code>/.
+const DEFAULT_LANGUAGE = 'en';
+// Documents with a version per language (keep in sync with LOCALIZABLE in src/shared/content.ts).
+const LOCALIZABLE = ['profile.json', 'aboutMe.json', 'educationContent.json', 'experienceContent.json',
+    'expertise.json', 'contacts.json'];
 
 $PRIVATE_DIR = rtrim(getenv('PORTFOLIO_PRIVATE_DIR') ?: __DIR__ . '/private', '/\\');
 $FILES_DIR = rtrim(getenv('PORTFOLIO_FILES_DIR') ?: dirname(__DIR__) . '/files', '/\\');
@@ -50,9 +59,9 @@ function respond(int $status, array $body = []): void
     exit;
 }
 
-function fail(int $status, string $message): void
+function fail(int $status, string $message, string $code = 'error', array $params = []): void
 {
-    respond($status, ['error' => $message]);
+    respond($status, ['error' => $message, 'code' => $code, 'params' => (object)$params]);
 }
 
 function is_https(): bool
@@ -129,14 +138,14 @@ function hash_password(string $password): string
 function validate_new_password($password): string
 {
     if (!is_string($password)) {
-        fail(400, 'Password mancante');
+        fail(400, 'Missing password', 'passwordMissing');
     }
     $len = mb_strlen($password, 'UTF-8');
     if ($len < MIN_PASSWORD_LENGTH) {
-        fail(400, 'La password deve avere almeno ' . MIN_PASSWORD_LENGTH . ' caratteri');
+        fail(400, 'The password must be at least ' . MIN_PASSWORD_LENGTH . ' characters long', 'passwordTooShort', ['min' => MIN_PASSWORD_LENGTH]);
     }
     if ($len > MAX_PASSWORD_LENGTH) {
-        fail(400, 'Password troppo lunga');
+        fail(400, 'Password too long', 'passwordTooLong');
     }
     return $password;
 }
@@ -196,7 +205,7 @@ function login_session(): void
 function require_auth(): void
 {
     if (empty($_SESSION['auth'])) {
-        fail(401, 'Sessione scaduta, effettua di nuovo il login');
+        fail(401, 'Session expired, please log in again', 'sessionExpired');
     }
 }
 
@@ -204,7 +213,7 @@ function check_csrf(): void
 {
     $sent = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     if (!is_string($sent) || !hash_equals($_SESSION['csrf'], $sent)) {
-        fail(403, 'Token CSRF non valido, ricarica la pagina');
+        fail(403, 'Invalid CSRF token, reload the page', 'csrfInvalid');
     }
 }
 
@@ -248,7 +257,7 @@ function assert_not_locked(string $file): void
     });
     if ($wait > 0) {
         header('Retry-After: ' . $wait);
-        fail(429, 'Troppi tentativi. Riprova tra ' . (int)ceil($wait / 60) . ' minuti');
+        fail(429, 'Too many attempts. Try again in ' . (int)ceil($wait / 60) . ' minutes', 'tooManyAttempts', ['minutes' => (int)ceil($wait / 60)]);
     }
 }
 
@@ -283,12 +292,12 @@ function verify_password($password, string $authFile, string $attemptsFile): voi
     assert_not_locked($attemptsFile);
     $auth = read_private($authFile);
     if (!$auth || empty($auth['hash'])) {
-        fail(409, 'Password non ancora impostata');
+        fail(409, 'Password not set yet', 'passwordNotSet');
     }
     if (!is_string($password) || strlen($password) > MAX_PASSWORD_LENGTH * 4
         || !password_verify($password, $auth['hash'])) {
         register_failure($attemptsFile);
-        fail(401, 'Password errata');
+        fail(401, 'Wrong password', 'wrongPassword');
     }
     clear_failures($attemptsFile);
     if (password_needs_rehash($auth['hash'], hash_algo(), hash_options())) {
@@ -303,15 +312,15 @@ function str_field(array $src, string $key, bool $required = true, int $max = MA
 {
     if (!array_key_exists($key, $src) || $src[$key] === null || $src[$key] === '') {
         if ($required && !array_key_exists($key, $src)) {
-            fail(400, "Campo mancante: $key");
+            fail(400, "Missing field: $key", 'fieldMissing', ['field' => $key]);
         }
         return $required ? '' : null;
     }
     if (!is_string($src[$key])) {
-        fail(400, "Campo non valido: $key");
+        fail(400, "Invalid field: $key", 'fieldInvalid', ['field' => $key]);
     }
     if (mb_strlen($src[$key], 'UTF-8') > $max) {
-        fail(400, "Campo troppo lungo: $key");
+        fail(400, "Field too long: $key", 'fieldTooLong', ['field' => $key]);
     }
     return $src[$key];
 }
@@ -320,14 +329,14 @@ function list_field(array $src, string $key): array
 {
     $list = $src[$key] ?? null;
     if (!is_array($list) || !array_is_list($list)) {
-        fail(400, "Lista non valida: $key");
+        fail(400, "Invalid list: $key", 'fieldInvalid', ['field' => $key]);
     }
     if (count($list) > MAX_LIST_ITEMS) {
-        fail(400, "Troppi elementi: $key");
+        fail(400, "Too many items: $key", 'tooManyItems', ['field' => $key]);
     }
     foreach ($list as $item) {
         if (!is_array($item)) {
-            fail(400, "Elemento non valido in $key");
+            fail(400, "Invalid item in $key", 'fieldInvalid', ['field' => $key]);
         }
     }
     return $list;
@@ -337,7 +346,7 @@ function color_field(array $src, string $key): string
 {
     $v = $src[$key] ?? null;
     if (!is_string($v) || !preg_match('/^#[0-9a-fA-F]{6}$/', $v)) {
-        fail(400, "Colore non valido: $key");
+        fail(400, "Invalid color: $key", 'colorInvalid', ['field' => $key]);
     }
     return strtolower($v);
 }
@@ -346,12 +355,40 @@ function enum_field(array $src, string $key, array $allowed): string
 {
     $v = $src[$key] ?? null;
     if (!is_string($v) || !in_array($v, $allowed, true)) {
-        fail(400, "Valore non valido: $key");
+        fail(400, "Invalid value: $key", 'fieldInvalid', ['field' => $key]);
     }
     return $v;
 }
 
 /** Returns the sanitized document to store, or fails. */
+/** Dashboard translation catalog: nested objects whose leaves are strings (keys checked, never paths). */
+function translation_tree($node, string $path, int $depth, int &$count): array
+{
+    if (!is_array($node) || (count($node) > 0 && array_is_list($node)) || $depth > MAX_TRANSLATION_DEPTH) {
+        fail(400, "Invalid value: $path", 'fieldInvalid', ['field' => $path]);
+    }
+    $out = [];
+    foreach ($node as $key => $value) {
+        $key = (string)$key;
+        $field = "$path.$key";
+        if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]{0,63}$/', $key)) {
+            fail(400, "Invalid field: $path", 'fieldInvalid', ['field' => $path]);
+        }
+        if (is_string($value)) {
+            if (++$count > MAX_TRANSLATION_STRINGS) {
+                fail(400, "Too many items: $path", 'tooManyItems', ['field' => $path]);
+            }
+            if (mb_strlen($value, 'UTF-8') > MAX_TRANSLATION_LENGTH) {
+                fail(400, "Field too long: $field", 'fieldTooLong', ['field' => $field]);
+            }
+            $out[$key] = $value;
+        } else {
+            $out[$key] = (object)translation_tree($value, $field, $depth + 1, $count);
+        }
+    }
+    return $out;
+}
+
 function sanitize_document(string $name, array $doc, string $filesDir): array
 {
     switch ($name) {
@@ -387,38 +424,75 @@ function sanitize_document(string $name, array $doc, string $filesDir): array
         case 'theme.json':
             $fonts = ['system', 'inter', 'roboto', 'lato', 'poppins', 'montserrat',
                 'merriweather', 'playfair', 'sourcecode'];
-            $colors = $doc['colors'] ?? null;
-            if (!is_array($colors)) {
-                fail(400, 'Colori mancanti');
-            }
-            $size = $doc['fontSize'] ?? null;
-            if (!is_int($size) || $size < 12 || $size > 22) {
-                fail(400, 'Dimensione font non valida (12-22)');
-            }
-            return [
-                'mode' => enum_field($doc, 'mode', ['light', 'dark']),
-                'colors' => [
+            $palette = function (string $key) use ($doc): array {
+                $colors = $doc[$key] ?? null;
+                if (!is_array($colors)) {
+                    fail(400, "Missing field: $key", 'fieldMissing', ['field' => $key]);
+                }
+                return [
                     'sidebarBackground' => color_field($colors, 'sidebarBackground'),
                     'sidebarText' => color_field($colors, 'sidebarText'),
                     'accent' => color_field($colors, 'accent'),
                     'background' => color_field($colors, 'background'),
                     'text' => color_field($colors, 'text'),
                     'title' => color_field($colors, 'title'),
-                ],
+                ];
+            };
+            $size = $doc['fontSize'] ?? null;
+            if (!is_int($size) || $size < 12 || $size > 22) {
+                fail(400, 'Invalid font size (12-22)', 'fontSizeInvalid');
+            }
+            return [
+                'mode' => enum_field($doc, 'mode', ['light', 'dark']),
+                'colors' => $palette('colors'),
+                'darkColors' => $palette('darkColors'),
                 'fontFamily' => enum_field($doc, 'fontFamily', $fonts),
                 'headingFontFamily' => enum_field($doc, 'headingFontFamily', $fonts),
                 'fontSize' => $size,
                 'imageShape' => enum_field($doc, 'imageShape', ['square', 'rounded', 'circle']),
             ];
+        case 'translations.json':
+            $languages = $doc['languages'] ?? null;
+            if (!is_array($languages) || (count($languages) > 0 && array_is_list($languages))) {
+                fail(400, 'Invalid value: languages', 'fieldInvalid', ['field' => 'languages']);
+            }
+            if (count($languages) > MAX_LANGUAGES) {
+                fail(400, 'Too many items: languages', 'tooManyItems', ['field' => 'languages']);
+            }
+            $clean = [];
+            foreach ($languages as $code => $catalog) {
+                $code = (string)$code;
+                if (!preg_match('/^[a-z]{2,3}(-[A-Za-z0-9]{2,8})?$/', $code)) {
+                    fail(400, "Invalid language code: $code", 'languageCodeInvalid', ['code' => $code]);
+                }
+                $count = 0;
+                $clean[$code] = (object)translation_tree($catalog, $code, 0, $count);
+            }
+            // Objects, so an empty list is still written as {} and not [].
+            return ['languages' => (object)$clean];
     }
-    fail(400, 'Documento non modificabile');
+    fail(400, 'Document not editable', 'documentNotEditable');
+}
+
+/** Path of a translated document; both parts are whitelisted/validated, never used raw. */
+function translation_file(string $filesDir, $name, $language): string
+{
+    if (!is_string($name) || !in_array($name, LOCALIZABLE, true)) {
+        fail(400, 'Document not editable', 'documentNotEditable');
+    }
+    if (!is_string($language) || $language === DEFAULT_LANGUAGE
+        || !preg_match('/^[a-z]{2,3}(-[A-Za-z0-9]{2,8})?$/', $language)) {
+        fail(400, 'Invalid language code: ' . (is_string($language) ? $language : ''), 'languageCodeInvalid',
+            ['code' => is_string($language) ? $language : '']);
+    }
+    return "$filesDir/i18n/$language/$name";
 }
 
 function write_json_document(string $file, array $doc): void
 {
     $json = json_encode($doc, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     if ($json === false) {
-        fail(400, 'Contenuto non serializzabile');
+        fail(400, 'Content cannot be serialized', 'contentInvalid');
     }
     write_atomic($file, $json . "\n");
 }
@@ -453,7 +527,7 @@ switch ($action) {
         // even with concurrent requests.
         $fh = @fopen($AUTH_FILE, 'x');
         if ($fh === false) {
-            fail(409, 'La password è già stata impostata');
+            fail(409, 'The password has already been set', 'passwordAlreadySet');
         }
         fwrite($fh, export_private(['hash' => $hash, 'createdAt' => gmdate('c')]));
         fclose($fh);
@@ -490,21 +564,44 @@ switch ($action) {
         $name = $body['document'] ?? '';
         $doc = $body['content'] ?? null;
         if (!is_string($name) || !is_array($doc)) {
-            fail(400, 'Richiesta non valida');
+            fail(400, 'Invalid request', 'badRequest');
         }
-        $clean = sanitize_document($name, $doc, $FILES_DIR);
-        write_json_document($FILES_DIR . '/' . $name, $clean); // $name is whitelisted above
+        $language = $body['language'] ?? null;
+        if ($language === null || $language === '' || $language === DEFAULT_LANGUAGE) {
+            $clean = sanitize_document($name, $doc, $FILES_DIR);
+            write_json_document($FILES_DIR . '/' . $name, $clean); // $name is whitelisted above
+            respond(200, ['ok' => true, 'content' => $clean]);
+        }
+        $file = translation_file($FILES_DIR, $name, $language);
+        // A translated profile only carries the texts that change with the language.
+        $clean = $name === 'profile.json'
+            ? ['jobtitle' => str_field($doc, 'jobtitle', true, 200)]
+            : sanitize_document($name, $doc, $FILES_DIR);
+        $dir = dirname($file);
+        if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
+            fail(500, 'Cannot write file');
+        }
+        write_json_document($file, $clean);
         respond(200, ['ok' => true, 'content' => $clean]);
+
+    case 'delete-translation':
+        require_auth();
+        $body = json_body();
+        $file = translation_file($FILES_DIR, $body['document'] ?? null, $body['language'] ?? null);
+        if (is_file($file) && !unlink($file)) {
+            fail(500, 'Cannot write file');
+        }
+        respond(200, ['ok' => true]);
 
     case 'upload-image':
         require_auth();
         $file = $_FILES['image'] ?? null;
         if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK
             || !is_uploaded_file($file['tmp_name'])) {
-            fail(400, 'Nessuna immagine ricevuta');
+            fail(400, 'No image received', 'imageMissing');
         }
         if ($file['size'] > MAX_IMAGE_BYTES) {
-            fail(400, 'Immagine troppo grande (max 5 MB)');
+            fail(400, 'Image too large (max 5 MB)', 'imageTooLarge');
         }
         $types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
         $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
@@ -512,12 +609,12 @@ switch ($action) {
         if (!isset($types[$mime]) || !$info || $info['mime'] !== $mime
             || $info[0] < 1 || $info[1] < 1
             || $info[0] > MAX_IMAGE_SIDE || $info[1] > MAX_IMAGE_SIDE) {
-            fail(400, 'Formato non valido: usa JPG, PNG o WEBP');
+            fail(400, 'Unsupported format: use JPG, PNG or WEBP', 'imageFormat');
         }
         // Fixed, server-chosen name: the client never controls the path or extension.
         $target = 'profile.' . $types[$mime];
         if (!move_uploaded_file($file['tmp_name'], $FILES_DIR . '/' . $target)) {
-            fail(500, 'Salvataggio immagine fallito');
+            fail(500, 'Saving the image failed', 'imageSaveFailed');
         }
         @chmod($FILES_DIR . '/' . $target, 0644);
         foreach ($types as $ext) {

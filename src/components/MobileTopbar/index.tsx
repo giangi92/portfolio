@@ -8,8 +8,11 @@ export const MobileTopbar = ({ profile }: { profile?: Profile }) => {
         position: "fixed",
         top: 4,
         left: 55,
+        // Leave room for the language / dark mode controls at the top right.
+        right: 150,
         whiteSpace: "nowrap",
-        maxWidth: "100%",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       }}
     >
       <span style={{ fontSize: "1.4rem" }}>

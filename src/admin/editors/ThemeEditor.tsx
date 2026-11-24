@@ -1,64 +1,68 @@
-import { useEffect, useId, type CSSProperties } from "react";
+import { useEffect, useId, useState, type CSSProperties } from "react";
 import {
-  COLOR_LABELS,
+  COLOR_KEYS,
   FONTS,
   THEME_PRESETS,
   loadThemeFonts,
   normalizeTheme,
+  paletteFor,
   themeVariables,
   type ImageShape,
   type Theme,
   type ThemeColors,
+  type ThemeMode,
 } from "../../shared/theme";
 import { SaveBar } from "../fields";
+import { useI18n } from "../i18n";
 import { useEditableDocument } from "../useEditableDocument";
 import { EditorShell } from "./EditorShell";
 
-const SHAPES: { value: ImageShape; label: string }[] = [
-  { value: "square", label: "Quadrata" },
-  { value: "rounded", label: "Arrotondata" },
-  { value: "circle", label: "Cerchio" },
-];
+const SHAPES: ImageShape[] = ["square", "rounded", "circle"];
 
 export const ThemeEditor = () => {
+  const { t } = useI18n();
   const doc = useEditableDocument<Theme>("theme.json", normalizeTheme);
   const theme = doc.draft;
+  /** Palette being edited; also the one shown in the preview. */
+  const [palette, setPalette] = useState<ThemeMode>("light");
 
   useEffect(() => {
     if (theme) loadThemeFonts(theme);
   }, [theme]);
 
   if (!theme)
-    return <EditorShell title="Tema e stile" loadError={doc.loadError} loading />;
+    return <EditorShell title={t.nav.theme} loadError={doc.loadError} loading />;
 
   const set = <K extends keyof Theme>(key: K, value: Theme[K]) => doc.update({ ...theme, [key]: value });
+  const paletteKey = palette === "dark" ? "darkColors" : "colors";
+  const colors = paletteFor(theme, palette);
   const setColor = (key: keyof ThemeColors, value: string) =>
-    set("colors", { ...theme.colors, [key]: value });
+    set(paletteKey, { ...colors, [key]: value });
 
   return (
     <EditorShell
-      title="Tema e stile"
-      description="Colori, caratteri e forma della foto. L'anteprima si aggiorna mentre modifichi."
+      title={t.nav.theme}
+      description={t.theme.description}
       footer={
         <SaveBar state={doc.state} dirty={doc.dirty} onSave={doc.save} onReset={doc.reset} />
       }
     >
       <div className="mb-4">
-        <div className="form-label">Temi pronti</div>
+        <div className="form-label">{t.theme.presets}</div>
         <div className="d-flex flex-wrap gap-2">
           {THEME_PRESETS.map((p) => (
             <button
-              key={p.name}
+              key={p.id}
               className="btn btn-outline-secondary admin-preset"
               onClick={() => doc.update(p.theme)}
             >
               <span
                 className="admin-preset-swatch"
                 style={{
-                  background: `linear-gradient(90deg, ${p.theme.colors.sidebarBackground} 50%, ${p.theme.colors.background} 50%)`,
+                  background: `linear-gradient(90deg, ${paletteFor(p.theme, palette).sidebarBackground} 50%, ${paletteFor(p.theme, palette).background} 50%)`,
                 }}
               />
-              {p.name}
+              {t.theme.presetNames[p.id]}
             </button>
           ))}
         </div>
@@ -66,45 +70,40 @@ export const ThemeEditor = () => {
 
       <div className="row g-4">
         <div className="col-lg-6">
-          <h2 className="h6 text-uppercase text-body-secondary">Colori</h2>
-          {(Object.keys(COLOR_LABELS) as (keyof ThemeColors)[]).map((key) => (
+          <h2 className="h6 text-uppercase text-body-secondary">{t.theme.colors}</h2>
+          <div className="mb-3">
+            <div className="form-label">{t.theme.palette}</div>
+            <ModeButtons value={palette} onChange={setPalette} />
+            <div className="form-text">{t.theme.paletteHint}</div>
+          </div>
+          {COLOR_KEYS.map((key) => (
             <ColorRow
               key={key}
-              label={COLOR_LABELS[key]}
-              value={theme.colors[key]}
+              label={t.theme.colorLabels[key]}
+              value={colors[key]}
               onChange={(v) => setColor(key, v)}
             />
           ))}
 
-          <h2 className="h6 text-uppercase text-body-secondary mt-4">Stile</h2>
+          <h2 className="h6 text-uppercase text-body-secondary mt-4">{t.theme.style}</h2>
           <div className="mb-3">
-            <div className="form-label">Modalità componenti</div>
-            <div className="btn-group" role="group">
-              {(["light", "dark"] as const).map((m) => (
-                <button
-                  key={m}
-                  className={`btn btn-outline-secondary ${theme.mode === m ? "active" : ""}`}
-                  onClick={() => set("mode", m)}
-                >
-                  <i className={`bi ${m === "light" ? "bi-sun" : "bi-moon-stars"} me-1`} />
-                  {m === "light" ? "Chiara" : "Scura"}
-                </button>
-              ))}
-            </div>
+            <div className="form-label">{t.theme.mode}</div>
+            <ModeButtons value={theme.mode} onChange={(m) => set("mode", m)} />
+            <div className="form-text">{t.theme.modeHint}</div>
           </div>
           <FontSelect
-            label="Carattere testo"
+            label={t.theme.bodyFont}
             value={theme.fontFamily}
             onChange={(v) => set("fontFamily", v)}
           />
           <FontSelect
-            label="Carattere titoli"
+            label={t.theme.headingFont}
             value={theme.headingFontFamily}
             onChange={(v) => set("headingFontFamily", v)}
           />
           <div className="mb-3">
             <label className="form-label d-flex justify-content-between">
-              Dimensione testo <span>{theme.fontSize}px</span>
+              {t.theme.fontSize} <span>{theme.fontSize}px</span>
             </label>
             <input
               type="range"
@@ -116,26 +115,45 @@ export const ThemeEditor = () => {
             />
           </div>
           <div className="mb-3">
-            <div className="form-label">Forma della foto</div>
+            <div className="form-label">{t.theme.imageShape}</div>
             <div className="btn-group" role="group">
-              {SHAPES.map((s) => (
+              {SHAPES.map((shape) => (
                 <button
-                  key={s.value}
-                  className={`btn btn-outline-secondary ${theme.imageShape === s.value ? "active" : ""}`}
-                  onClick={() => set("imageShape", s.value)}
+                  key={shape}
+                  className={`btn btn-outline-secondary ${theme.imageShape === shape ? "active" : ""}`}
+                  onClick={() => set("imageShape", shape)}
                 >
-                  {s.label}
+                  {t.theme.shapes[shape]}
                 </button>
               ))}
             </div>
           </div>
         </div>
         <div className="col-lg-6">
-          <h2 className="h6 text-uppercase text-body-secondary">Anteprima</h2>
-          <ThemePreview theme={theme} />
+          <h2 className="h6 text-uppercase text-body-secondary">{t.theme.preview}</h2>
+          <ThemePreview theme={theme} mode={palette} />
         </div>
       </div>
     </EditorShell>
+  );
+};
+
+const ModeButtons = ({ value, onChange }: { value: ThemeMode; onChange: (m: ThemeMode) => void }) => {
+  const { t } = useI18n();
+  return (
+    <div className="btn-group" role="group">
+      {(["light", "dark"] as const).map((m) => (
+        <button
+          key={m}
+          className={`btn btn-outline-secondary ${value === m ? "active" : ""}`}
+          aria-pressed={value === m}
+          onClick={() => onChange(m)}
+        >
+          <i className={`bi ${m === "light" ? "bi-sun" : "bi-moon-stars"} me-1`} />
+          {m === "light" ? t.theme.light : t.theme.dark}
+        </button>
+      ))}
+    </div>
   );
 };
 
@@ -199,8 +217,8 @@ const FontSelect = ({
 };
 
 /** Miniature of the site using the same CSS variables the site uses. */
-const ThemePreview = ({ theme }: { theme: Theme }) => (
-  <div className="admin-preview" style={themeVariables(theme) as CSSProperties}>
+const ThemePreview = ({ theme, mode }: { theme: Theme; mode: ThemeMode }) => (
+  <div className="admin-preview" style={themeVariables(theme, mode) as CSSProperties}>
     <div className="admin-preview-sidebar">
       <div className="admin-preview-avatar" />
       <div className="admin-preview-name">

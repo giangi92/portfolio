@@ -20,7 +20,7 @@ export const Experience = () => {
   return (
     <ContentHandler
       contentText={""}
-      sectionTitle="EXPERIENCE"
+      section="experience"
       documentName="experienceContent.json"
       icon="experience"
       setPageContent={setExperienceContent}

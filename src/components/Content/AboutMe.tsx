@@ -9,7 +9,7 @@ export const AboutMe = () => {
   return (
     <ContentHandler
       contentText={pageContent?.aboutMe ?? ""}
-      sectionTitle="ABOUT ME"
+      section="aboutMe"
       documentName="aboutMe.json"
       icon="user"
       setPageContent={setPageContent}

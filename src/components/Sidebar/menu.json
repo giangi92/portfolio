@@ -1,7 +1,7 @@
 [
-  { "title": "About Me", "pagelink": "aboutMe" },
-  { "title": "Education", "pagelink": "education" },
-  { "title": "Experience", "pagelink": "experience" },
-  { "title": "Expertise", "pagelink": "expertise" },
-  { "title": "Contacts", "pagelink": "contacts" }
+  { "pagelink": "aboutMe" },
+  { "pagelink": "education" },
+  { "pagelink": "experience" },
+  { "pagelink": "expertise" },
+  { "pagelink": "contacts" }
 ]

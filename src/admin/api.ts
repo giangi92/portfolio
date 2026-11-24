@@ -9,8 +9,14 @@ export type Status = {
   minPasswordLength: number;
 };
 
+/** `code` + `params` come from the API and are translated in the UI; `message` is the English fallback. */
 export class ApiError extends Error {
-  constructor(message: string, public status: number) {
+  constructor(
+    message: string,
+    public status: number,
+    public code?: string,
+    public params?: Record<string, unknown>
+  ) {
     super(message);
   }
 }
@@ -39,7 +45,9 @@ const call = async <T,>(action: string, init: RequestInit = {}): Promise<T> => {
   }
   if (!res.ok) {
     if (res.status === 401 && action !== "login" && action !== "change-password") onUnauthorized();
-    throw new ApiError(body.error ?? `Errore ${res.status}: API non raggiungibile`, res.status);
+    if (typeof body.error !== "string")
+      throw new ApiError(`Error ${res.status}: API not reachable`, res.status, "unreachable");
+    throw new ApiError(body.error, res.status, body.code, body.params);
   }
   if (typeof body.csrf === "string") csrfToken = body.csrf;
   return body as T;
@@ -59,8 +67,11 @@ export const api = {
   logout: () => post("logout", {}),
   changePassword: (currentPassword: string, newPassword: string) =>
     post("change-password", { currentPassword, newPassword }),
-  save: <T,>(document: DocumentName, content: T) =>
-    post<{ content: T }>("save", { document, content }),
+  /** `language` saves the translated version of a localizable document (omit for English). */
+  save: <T,>(document: DocumentName, content: T, language?: string) =>
+    post<{ content: T }>("save", { document, content, language }),
+  deleteTranslation: (document: DocumentName, language: string) =>
+    post("delete-translation", { document, language }),
   uploadImage: (file: File) => {
     const form = new FormData();
     form.append("image", file);

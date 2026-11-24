@@ -2,7 +2,9 @@ import { useRef, useState, type ChangeEvent } from "react";
 import { profileImageUrl, type Profile } from "../../shared/content";
 import { api } from "../api";
 import { SaveBar, TextInput } from "../fields";
+import { DEFAULT_LANGUAGE, useI18n } from "../i18n";
 import { useEditableDocument } from "../useEditableDocument";
+import { ContentLanguageBar } from "./ContentLanguageBar";
 import { EditorShell } from "./EditorShell";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -17,7 +19,11 @@ const normalize = (raw: any): Profile => ({
 });
 
 export const ProfileEditor = () => {
-  const doc = useEditableDocument<Profile>("profile.json", normalize);
+  const { t, errorText } = useI18n();
+  const [lang, setLang] = useState(DEFAULT_LANGUAGE);
+  // Only the job title changes per language: name, surname and photo are edited in English.
+  const shared = lang === DEFAULT_LANGUAGE;
+  const doc = useEditableDocument<Profile>("profile.json", normalize, lang);
   const fileInput = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadMsg, setUploadMsg] = useState<{ ok: boolean; text: string } | undefined>();
@@ -30,9 +36,9 @@ export const ProfileEditor = () => {
     e.target.value = "";
     if (!file) return;
     if (!ACCEPTED.includes(file.type))
-      return setUploadMsg({ ok: false, text: "Formato non supportato: usa JPG, PNG o WEBP" });
+      return setUploadMsg({ ok: false, text: t.errors.imageFormat });
     if (file.size > MAX_BYTES)
-      return setUploadMsg({ ok: false, text: "Immagine troppo grande (max 5 MB)" });
+      return setUploadMsg({ ok: false, text: t.errors.imageTooLarge });
 
     setUploading(true);
     setUploadMsg(undefined);
@@ -42,9 +48,9 @@ export const ProfileEditor = () => {
       doc.replaceSaved(updated);
       if (doc.draft)
         doc.update({ ...doc.draft, image: updated.image, imageVersion: updated.imageVersion });
-      setUploadMsg({ ok: true, text: "Immagine aggiornata" });
+      setUploadMsg({ ok: true, text: t.profile.uploaded });
     } catch (err) {
-      setUploadMsg({ ok: false, text: (err as Error).message });
+      setUploadMsg({ ok: false, text: errorText(err) });
     } finally {
       setUploading(false);
     }
@@ -52,8 +58,9 @@ export const ProfileEditor = () => {
 
   return (
     <EditorShell
-      title="Profilo"
-      description="Nome, ruolo e foto mostrati nella barra laterale."
+      title={t.nav.profile}
+      description={t.profile.description}
+      toolbar={<ContentLanguageBar lang={lang} onChange={setLang} doc={doc} />}
       loadError={doc.loadError}
       loading={!doc.draft}
       footer={
@@ -65,7 +72,7 @@ export const ProfileEditor = () => {
           <div className="col-md-4 text-center">
             <img
               src={profileImageUrl(doc.draft)}
-              alt="Foto profilo"
+              alt={t.profile.photoAlt}
               className="admin-avatar mb-3"
             />
             <input
@@ -77,13 +84,13 @@ export const ProfileEditor = () => {
             />
             <button
               className="btn btn-outline-primary w-100"
-              disabled={uploading}
+              disabled={uploading || !shared}
               onClick={() => fileInput.current?.click()}
             >
               <i className="bi bi-upload me-1" />
-              {uploading ? "Caricamento…" : "Carica nuova foto"}
+              {uploading ? t.profile.uploading : t.profile.upload}
             </button>
-            <div className="form-text">JPG, PNG o WEBP, max 5 MB. Si consiglia un formato quadrato.</div>
+            <div className="form-text">{t.profile.uploadHint}</div>
             {uploadMsg && (
               <div className={`small mt-2 ${uploadMsg.ok ? "text-success" : "text-danger"}`}>
                 {uploadMsg.text}
@@ -91,14 +98,21 @@ export const ProfileEditor = () => {
             )}
           </div>
           <div className="col-md-8">
-            <TextInput label="Nome" value={doc.draft.name} onChange={(v) => set("name", v)} />
+            {!shared && <p className="form-text mt-0">{t.content.sharedFields}</p>}
             <TextInput
-              label="Cognome"
-              value={doc.draft.surname}
-              onChange={(v) => set("surname", v)}
+              label={t.profile.name}
+              value={doc.draft.name}
+              onChange={(v) => set("name", v)}
+              disabled={!shared}
             />
             <TextInput
-              label="Ruolo"
+              label={t.profile.surname}
+              value={doc.draft.surname}
+              onChange={(v) => set("surname", v)}
+              disabled={!shared}
+            />
+            <TextInput
+              label={t.profile.jobtitle}
               value={doc.draft.jobtitle}
               onChange={(v) => set("jobtitle", v)}
             />

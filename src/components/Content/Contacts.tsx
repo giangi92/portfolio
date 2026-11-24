@@ -9,7 +9,7 @@ export const Contacts = () => {
   return (
     <ContentHandler
       contentText={pageContent?.contacts ?? ""}
-      sectionTitle="CONTACTS"
+      section="contacts"
       documentName="contacts.json"
       icon="contacts"
       setPageContent={setPageContent}

@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { api } from "../api";
 import { PasswordInput } from "../fields";
+import { format, useI18n } from "../i18n";
 import { EditorShell } from "./EditorShell";
 
 export const SecurityPanel = ({ minPasswordLength }: { minPasswordLength: number }) => {
+  const { t, errorText } = useI18n();
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -13,8 +15,8 @@ export const SecurityPanel = ({ minPasswordLength }: { minPasswordLength: number
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (next.length < minPasswordLength)
-      return setMsg({ ok: false, text: `La nuova password deve avere almeno ${minPasswordLength} caratteri` });
-    if (next !== confirm) return setMsg({ ok: false, text: "Le password non coincidono" });
+      return setMsg({ ok: false, text: format(t.security.tooShort, { min: minPasswordLength }) });
+    if (next !== confirm) return setMsg({ ok: false, text: t.common.passwordsDontMatch });
     setBusy(true);
     setMsg(undefined);
     try {
@@ -22,34 +24,31 @@ export const SecurityPanel = ({ minPasswordLength }: { minPasswordLength: number
       setCurrent("");
       setNext("");
       setConfirm("");
-      setMsg({ ok: true, text: "Password aggiornata" });
+      setMsg({ ok: true, text: t.security.updated });
     } catch (err) {
-      setMsg({ ok: false, text: (err as Error).message });
+      setMsg({ ok: false, text: errorText(err) });
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <EditorShell
-      title="Sicurezza"
-      description="La password è salvata solo come hash (Argon2id, o bcrypt se il server non lo supporta). Per cambiarla serve quella attuale."
-    >
+    <EditorShell title={t.nav.security} description={t.security.description}>
       <form className="admin-narrow" onSubmit={submit}>
         <PasswordInput
-          label="Password attuale"
+          label={t.security.current}
           value={current}
           onChange={setCurrent}
           autoComplete="current-password"
         />
         <PasswordInput
-          label="Nuova password"
+          label={t.security.new}
           value={next}
           onChange={setNext}
           autoComplete="new-password"
         />
         <PasswordInput
-          label="Conferma nuova password"
+          label={t.security.confirm}
           value={confirm}
           onChange={setConfirm}
           autoComplete="new-password"
@@ -58,7 +57,7 @@ export const SecurityPanel = ({ minPasswordLength }: { minPasswordLength: number
           <div className={`alert py-2 ${msg.ok ? "alert-success" : "alert-danger"}`}>{msg.text}</div>
         )}
         <button className="btn btn-primary" disabled={busy || !current || !next}>
-          Cambia password
+          {t.security.submit}
         </button>
       </form>
     </EditorShell>
