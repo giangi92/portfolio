@@ -10,7 +10,8 @@
 }
 
 .userImage {
-  max-width: 200px;
+  width: 100%;
+  max-width: min(100%, 200px);
   max-height: 200px;
   border-radius: var(--pf-image-radius);
   aspect-ratio: 1 / 1;
