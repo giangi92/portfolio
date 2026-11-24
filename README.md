@@ -11,6 +11,28 @@ texts, the profile picture and the site theme.
 Content lives in `public/files/*.json` and is loaded at runtime, so edits made from the
 dashboard show up immediately without a rebuild.
 
+## Screenshots
+
+### Site
+
+| Light | Dark |
+| --- | --- |
+| ![Site, light mode](docs/screenshots/site-light.png) | ![Site, dark mode](docs/screenshots/site-dark.png) |
+
+<p align="center">
+  <img src="docs/screenshots/site-mobile.png" alt="Site on mobile" width="300">
+</p>
+
+### Admin dashboard
+
+| Login | Profile |
+| --- | --- |
+| ![Admin login](docs/screenshots/admin-login.png) | ![Profile editor](docs/screenshots/admin-profile.png) |
+
+| Experience | Theme & style |
+| --- | --- |
+| ![Experience editor](docs/screenshots/admin-experience.png) | ![Theme editor with live preview](docs/screenshots/admin-theme.png) |
+
 ## Development
 
 Requirements: Node 20+, Docker (for the local PHP API).
